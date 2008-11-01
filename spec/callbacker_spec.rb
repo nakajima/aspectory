@@ -42,5 +42,14 @@ describe GotYoBack::Callbacker do
       object.bar
       object.should_not be_called
     end
+    
+    describe "#pristine" do
+      it "allows pristine method calling" do
+        @callbacker.before(:foo) { @called = true }
+        object = klass.new
+        object.pristine(:foo)
+        object.should_not be_called
+      end
+    end
   end
 end
