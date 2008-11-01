@@ -29,4 +29,6 @@ h3. Why?
 
 Why not?
 
+h4. "View the CI build":http://ci.patnakajima.com/got-yo-back
+
 @(c) Copyright 2008 Pat Nakajima, released under MIT License.@
