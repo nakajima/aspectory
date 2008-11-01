@@ -19,13 +19,13 @@ describe GotYoBack::Introspector do
   describe "observing a method" do
     it "is stored in #observed_methods" do
       introspector.observe(:bar)
-      introspector.observing?(:bar).should be
+      introspector.observing?(:bar).should be_true
     end
 
     it "ceases when method gets defined" do
       introspector.observe(:bar)
       klass.class_eval { def bar; :bar end }
-      introspector.observing?(:bar).should_not be
+      introspector.observing?(:bar).should be_false
     end
     
     it "allows callbacks for when methods get defined" do

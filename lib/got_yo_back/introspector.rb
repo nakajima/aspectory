@@ -10,13 +10,14 @@ module GotYoBack
     def observe_klass!
       @observed ||= begin
         this = self
-        @klass.meta_def(:method_added) { |m| this.check_method(m) }
-        true
+        @klass.meta_def(:method_added) do |m|
+          this.check_method(m)
+        end and true
       end
     end
     
     def observing?(method_id)
-      @observed_methods[method_id]
+      not not @observed_methods[method_id]
     end
     
     def observe(method_id, &block)

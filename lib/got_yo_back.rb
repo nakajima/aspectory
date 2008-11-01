@@ -8,4 +8,5 @@ end
 require 'rubygems'
 require 'metaid'
 require 'symbol'
+require 'callbacker'
 require 'introspector'
