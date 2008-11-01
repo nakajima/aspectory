@@ -1,0 +1,32 @@
+h1. Got Yo Back
+
+Callbacks for Ruby. Ya heard? I'll let you know when it's ready.
+
+h3. How it's going to work
+
+<pre>
+class Something
+
+  before :foo do
+    # do something before :foo
+  end
+
+  after :bar do |result_of_bar|
+    # do something after :bar
+  end
+
+  def foo
+    :foo
+  end
+
+  def bar
+    :bar
+  end
+end
+</pre>
+
+h3. Why?
+
+Why not?
+
+@(c) Copyright 2008 Pat Nakajima, released under MIT License.@
