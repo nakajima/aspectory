@@ -44,10 +44,14 @@ module GotYoBack
         def #{method_id}(*args, &block)
           catch(#{method_id.to_sym.inspect}) do
             return unless self.class.run_callbacks_for(self, :before, #{method_id.inspect})
-            result = pristine(#{method_id.inspect}, *args, &block)
+            result = __PRISTINE__(#{method_id.inspect}, *args, &block)
             self.class.run_callbacks_for(self, :after, #{method_id.inspect}, result)
             return result
           end
+        end
+        
+        def #{method_id}_without_callbacks(*args, &block)
+          __PRISTINE__(#{method_id.inspect}, *args, &block)
         end
       EOS
     end
@@ -71,7 +75,7 @@ module GotYoBack
     end
     
     module InstanceMethods
-      def pristine(method_id, *args, &block)
+      def __PRISTINE__(method_id, *args, &block)
         if method = self.class.pristine_cache[method_id]
           method.bind(self).call(*args, &block)
         else

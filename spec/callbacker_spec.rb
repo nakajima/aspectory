@@ -38,32 +38,41 @@ describe GotYoBack::Callbacker do
     @object = klass.new
   end
   
-  describe "klass#pristine" do
+  describe "klass#__PRISTINE__" do
     it "allows original method calling" do
       callbacker.before(:foo) { @results << :before }
       
-      object.pristine(:foo)
+      object.__PRISTINE__(:foo)
       object.results.should == [:foo]
     end
     
     it "allows arguments" do
       callbacker.before(:foo) { @results << :before }
       
-      object.pristine :foo, :bar
+      object.__PRISTINE__(:foo, :bar)
       object.results.should == [:bar]
     end
     
     it "allows a block" do
       callbacker.before(:foo) { @results << :before }
       
-      object.pristine(:foo) { :bar }
+      object.__PRISTINE__(:foo) { :bar }
       object.results.should == [:bar]
     end
     
     it "raises when method doesn't exist" do
       proc {
-        callbacker.pristine(:whiz)
+        callbacker.__PRISTINE__(:whiz)
       }.should raise_error(NoMethodError)
+    end
+    
+    describe "foo_without_callbacks methods" do
+      it "are generated for methods with callbacks" do
+        callbacker.before(:foo) { @results << :before }
+
+        object.foo_without_callbacks
+        object.results.should == [:foo]
+      end
     end
   end
   
