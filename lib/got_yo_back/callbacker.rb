@@ -2,58 +2,71 @@ module GotYoBack
   class Callbacker
     attr_reader :klass
     
-    METHOD_DEF = proc do |method_id|
-      
-    end
-    
     def initialize(klass)
       @klass = klass
       extend_klass
     end
     
-    def extend_klass
-      klass.extend(ClassMethods)
-      klass.send :include, InstanceMethods
+    def before(method_id, *symbols, &block)
+      add_callback(:before, method_id, *symbols, &block)
     end
     
-    def before(method_id, &block)
-      add_callback(:before, method_id, &block)
+    def after(method_id, *symbols, &block)
+      add_callback(:after, method_id, *symbols, &block)
     end
     
     private
     
-    def add_callback(position, method_id, &block)
+    def extend_klass
       klass.class_eval do
-        callback_cache[position][method_id] << block
-        pristine_cache[method_id] ||= begin
-          pristine_method = instance_method(method_id)
-          redefine_method method_id
-          pristine_method
-        end
+        meta_eval { attr_reader :pristine_cache, :callback_cache }
+        @pristine_cache = Hash.new
+        @callback_cache = { :after => Hash.new([]), :before => Hash.new([]) }
+        extend ClassMethods
+        include InstanceMethods
       end
     end
     
-    module ClassMethods
-      def pristine_cache
-        @pristine_cache ||= Hash.new
+    def add_callback(position, method_id, *symbols, &block)
+      klass.callback_cache[position][method_id] += symbols
+      klass.callback_cache[position][method_id] << block
+      klass.callback_cache[position][method_id].compact!
+      klass.pristine_cache[method_id] ||= begin
+        pristine_method = klass.instance_method(method_id)
+        redefine_method method_id
+        pristine_method
       end
-      
-      def callback_cache
-        @callback_cache ||= Hash.new(Hash.new([]))
-      end
-      
-      def run_callbacks_for(target, position, method_id)
-        callback_cache[position][method_id].map { |fn| target.instance_eval(&fn) }.all?
-      end
-      
-      def redefine_method(method_id)
-        return if pristine_cache[method_id]
-        class_eval(<<-EOS, "(__DELEGATION__)", 1)
-          def #{method_id}(*args, &block)
+    end
+    
+    def redefine_method(method_id)
+      return if klass.pristine_cache[method_id]
+      klass.class_eval(<<-EOS, "(__DELEGATION__)", 1)
+        def #{method_id}(*args, &block)
+          catch(#{method_id.to_sym.inspect}) do
             return unless self.class.run_callbacks_for(self, :before, #{method_id.inspect})
-            pristine(#{method_id.inspect}, *args, &block)
+            result = pristine(#{method_id.inspect}, *args, &block)
+            self.class.run_callbacks_for(self, :after, #{method_id.inspect}, result)
+            return result
           end
-        EOS
+        end
+      EOS
+    end
+    
+    module ClassMethods
+      def run_callbacks_for(target, position, method_id, *results)
+        callbacks = callback_cache[position][method_id.to_sym]
+        
+        handler = proc do |fn|
+          fn.is_a?(Proc) ? fn : begin
+            target.method(fn).arity.abs == results.length ?
+              proc { send(fn, *results) } :
+              proc { send(fn) }
+          end
+        end
+        
+        callbacks.empty? ? true : callbacks.map { |fn|
+          target.instance_exec(*results, &handler.call(fn))
+        }.all? { |result| !!result }
       end
     end
     

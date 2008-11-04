@@ -7,6 +7,8 @@ end
 
 require 'rubygems'
 require 'metaid'
+require 'proc'
+require 'object'
 require 'symbol'
 require 'callbacker'
 require 'introspector'
