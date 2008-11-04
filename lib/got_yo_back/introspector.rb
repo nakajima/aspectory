@@ -10,7 +10,7 @@ module GotYoBack
     def observe_klass!
       @observed ||= begin
         this = self
-        @klass.meta_def(:method_added) do |m|
+        klass.meta_def(:method_added) do |m|
           this.check_method(m)
         end and true
       end
@@ -30,8 +30,7 @@ module GotYoBack
     
     def check_method(method_id)
       handlers = @observed_methods.delete(method_id)
-      handlers.each { |fn| fn.call } rescue nil
-      
+      handlers.each(&:call) rescue nil
     end
     
     def defined_methods
