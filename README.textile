@@ -49,14 +49,15 @@ something.results # => [:before, :bar, :after]
 
 h3. Calling Methods without Callbacks
 
-Use the @#pristine@ method to call your methods without any callbacks.
-Here's an example with the same example class we used above:
+You can use the @#__PRISTINE__@ method to call your methods without any
+callbacks, or you can just call @method_name_without_callbacks@. Here's an
+example with the same example class we used above:
 
 <pre>
 something = Something.new
-something.pristine(:foo)
+something.__PRISTINE__(:foo)
 something.results # => [:foo]
-something.pristine(:bar)
+something.bar_without_callbacks
 something.results # => [:foo, :bar]
 </pre>
 
