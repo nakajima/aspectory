@@ -31,6 +31,7 @@ module GotYoBack
       klass.callback_cache[position][method_id] += symbols
       klass.callback_cache[position][method_id] << block
       klass.callback_cache[position][method_id].compact!
+      
       klass.pristine_cache[method_id] ||= begin
         pristine_method = klass.instance_method(method_id)
         redefine_method method_id
@@ -39,7 +40,6 @@ module GotYoBack
     end
     
     def redefine_method(method_id)
-      return if klass.pristine_cache[method_id]
       klass.class_eval(<<-EOS, "(__DELEGATION__)", 1)
         def #{method_id}(*args, &block)
           catch(#{method_id.to_sym.inspect}) do
@@ -66,7 +66,7 @@ module GotYoBack
         
         callbacks.empty? ? true : callbacks.map { |fn|
           target.instance_exec(*results, &handler.call(fn))
-        }.all? { |result| !!result }
+        }.all?
       end
     end
     

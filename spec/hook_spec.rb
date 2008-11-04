@@ -86,5 +86,13 @@ describe GotYoBack::Hook do
       once.should be_true
       twice.should be_true
     end
+    
+    it "only runs callbacks once" do
+      called = false
+      klass.observe(:boom) { called = !called }
+      klass.class_eval { def boom; :boom end }
+      klass.class_eval { def boom; :boom end }
+      called.should be_true
+    end
   end
 end

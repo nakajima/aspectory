@@ -59,6 +59,12 @@ describe GotYoBack::Callbacker do
       object.pristine(:foo) { :bar }
       object.results.should == [:bar]
     end
+    
+    it "raises when method doesn't exist" do
+      proc {
+        callbacker.pristine(:whiz)
+      }.should raise_error(NoMethodError)
+    end
   end
   
   describe "#before" do
@@ -68,7 +74,6 @@ describe GotYoBack::Callbacker do
 
         object.foo
         object.results.should == [:before, :foo]
-        
       end
 
       describe "redefining methods" do
@@ -113,11 +118,20 @@ describe GotYoBack::Callbacker do
           object.foo
         end
 
-        it "can throw alternative result" do
-          callbacker.before(:foo) { throw :foo, :result }
-
-          object.foo.should == :result
+        describe "throwing alternative result" do
+          before(:each) do
+            callbacker.before(:foo) { throw :foo, :result }
+          end
+          
+          it "returns alternative" do
+            object.foo.should == :result
+          end
+          
+          it "doesn't run original method" do
+            object.results.should be_empty
+          end
         end
+        
       end
     end
     

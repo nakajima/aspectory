@@ -13,11 +13,11 @@ module GotYoBack
     
     module ClassMethods
       def before(method_id, *args, &block)
-        callback :before, method_id, *args, &block
+        callback(:before, method_id, *args, &block)
       end
       
       def after(method_id, *args, &block)
-        callback :after, method_id, *args, &block
+        callback(:after, method_id, *args, &block)
       end
       
       def observe(method_id, &block)
