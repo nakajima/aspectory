@@ -20,12 +20,14 @@ module GotYoBack
         callback :after, method_id, *args, &block
       end
       
+      def observe(method_id, &block)
+        _introspector.observe(method_id, &block)
+      end
+      
       def callback(position, method_id, *args, &block)
-        if _introspector.defined_methods.include?(method_id)
-          _callbacker.send(position, method_id, *args, &block)
-        else
-          _introspector.observe(method_id) { send(position, method_id, *args, &block) }
-        end
+        _introspector.defined_methods.include?(method_id) ?
+          _callbacker.send(position, method_id, *args, &block) :
+          observe(method_id) { send(position, method_id, *args, &block) }
       end
     end
   end

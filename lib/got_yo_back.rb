@@ -5,6 +5,7 @@ module GotYoBack
   VERSION = '0.0.1'
 end
 
+require 'set'
 require 'rubygems'
 require 'metaid'
 require 'proc'

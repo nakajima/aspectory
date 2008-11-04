@@ -9,6 +9,7 @@ takes a method name, then a splat args of symbols and/or a block. The
 symbols/block will be called before/after the method you specified.
 
 h3. Simple Example
+
 <pre>
 class Something
   attr_reader :results
@@ -61,7 +62,7 @@ something.results # => [:foo, :bar]
 
 h3. Preventing a method from being called
 
-If a @before@ callback returns false, then the original method will
+If a @before@ callback returns @false@, then the original method will
 not be called. If you want to halt the method being called, but still
 want to provide a return value, you can @throw@ the name of the method:
 

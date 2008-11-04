@@ -4,7 +4,7 @@ module GotYoBack
     
     def initialize(klass)
       @klass = klass
-      @observed_methods = Hash.new
+      @observed_methods = { }
     end
     
     def observe_klass!
@@ -22,11 +22,16 @@ module GotYoBack
     
     def observe(method_id, &block)
       observe_klass!
-      @observed_methods[method_id] = block || proc { }
+      @observed_methods[method_id] ||= []
+      @observed_methods[method_id] << proc(&block) if block_given?
+      @observed_methods[method_id].compact!
+      @observed_methods[method_id].uniq!
     end
     
     def check_method(method_id)
-      @observed_methods.delete(method_id).call rescue nil
+      handlers = @observed_methods.delete(method_id)
+      handlers.each { |fn| fn.call } rescue nil
+      
     end
     
     def defined_methods

@@ -11,7 +11,6 @@ describe GotYoBack::Hook do
       before :foo, :call!
       callback :before, :fizz, :call!
       
-      
       def foo; :foo end
       def bar; :bar end
       def fizz; :fizz end
@@ -68,6 +67,24 @@ describe GotYoBack::Hook do
       object.should_not be_called
       object.buzz
       object.should be_called
+    end
+  end
+  
+  describe "#observe" do
+    it "allows method definitions to be observed" do
+      called = false
+      klass.observe(:boom) { called = true }
+      klass.class_eval { def boom; :boom end }
+      called.should be_true
+    end
+    
+    it "allows multiple callbacks for observed methods" do
+      once = twice = false
+      klass.observe(:boom) { once = true }
+      klass.observe(:boom) { twice = true }
+      klass.class_eval { def boom; :boom end }
+      once.should be_true
+      twice.should be_true
     end
   end
 end
