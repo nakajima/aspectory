@@ -5,13 +5,33 @@ describe GotYoBack::Callbacker do
   
   before(:each) do
     @klass = Class.new do
-      def no; false end
-      def foo; :foo end
-      def bar; @called = true end
-      def fizz(arg=false); @called = arg end
-      def buzz; @called = yield end
-      def called?; @called end
-      def pitch; throw :foo, :result end
+      attr_reader :results
+      
+      def initialize
+        @results = []
+      end
+      
+      def no
+        false
+      end
+      
+      def foo(arg=:foo, &block)
+        @results << (block_given? ? block.call : arg)
+        arg
+      end
+
+      def bar(arg=:bar, &block)
+        return arg unless arg
+        @results << (block_given? ? block.call : arg)
+      end
+      
+      def is_bar?(arg)
+        @results << (arg == :bar)
+      end
+
+      def pitch
+        throw :foo, :result
+      end
     end
     
     @callbacker = GotYoBack::Callbacker.new(klass)
@@ -20,71 +40,65 @@ describe GotYoBack::Callbacker do
   
   describe "klass#pristine" do
     it "allows original method calling" do
-      callbacker.before(:foo) { @called = true }
+      callbacker.before(:foo) { @results << :before }
       
       object.pristine(:foo)
-      object.should_not be_called
+      object.results.should == [:foo]
     end
     
     it "allows arguments" do
-      callbacker.before(:fizz) { :ok }
+      callbacker.before(:foo) { @results << :before }
       
-      object.pristine :fizz, true
-      object.should be_called
+      object.pristine :foo, :bar
+      object.results.should == [:bar]
     end
     
     it "allows a block" do
-      callbacker.before(:buzz) { :ok }
+      callbacker.before(:foo) { @results << :before }
       
-      object.pristine(:buzz) { true }
-      object.should be_called
+      object.pristine(:foo) { :bar }
+      object.results.should == [:bar]
     end
   end
   
   describe "#before" do
     context "with a block" do
       it "defines before behavior" do
-        callbacker.before(:foo) { @called = true }
+        callbacker.before(:foo) { @results << :before }
 
         object.foo
-        object.should be_called
-      end
-
-      it "still performs original behavior" do
-        callbacker.before(:bar) { :ok }
-
-        object.bar
-        object.should be_called
+        object.results.should == [:before, :foo]
+        
       end
 
       describe "redefining methods" do
         it "allows arguments" do
-          callbacker.before(:fizz) { :ok }
+          callbacker.before(:foo) { @results << :before }
 
-          object.fizz(true)
-          object.should be_called
+          object.foo(:arg)
+          object.results.should == [:before, :arg]
         end
 
         it "allows a block" do
-          callbacker.before(:buzz) { :ok }
+          callbacker.before(:foo) { @results << :before }
 
-          object.buzz { true }
-          object.should be_called
+          object.foo { :block }
+          object.results.should == [:before, :block]
         end
 
         it "only happens once" do
           mock(callbacker).redefine_method(anything).once
-          callbacker.before(:bar) { true }
-          callbacker.before(:bar) { false }
+          callbacker.before(:foo) { true }
+          callbacker.before(:foo) { false }
         end
       end
 
       describe "callback blocks" do
         it "enables halting of method call" do
-          callbacker.before(:bar) { false }
+          callbacker.before(:foo) { false }
 
-          object.bar
-          object.should_not be_called
+          object.foo
+          object.results.should be_empty
         end
 
         it "can be more than one per method" do
@@ -112,38 +126,31 @@ describe GotYoBack::Callbacker do
         callbacker.before(:foo, :bar)
 
         object.foo
-        object.should be_called
-      end
-
-      it "still performs original behavior" do
-        callbacker.before(:bar, :foo)
-
-        object.bar
-        object.should be_called
+        object.results.should == [:bar, :foo]
       end
 
       describe "redefining methods" do
         it "allows arguments" do
-          callbacker.before(:fizz, :foo)
+          callbacker.before(:foo, :bar)
 
-          object.fizz(true)
-          object.should be_called
+          object.foo(:arg)
+          object.results.should == [:bar, :arg]
         end
 
         it "allows a block" do
-          callbacker.before(:buzz, :foo)
+          callbacker.before(:foo, :bar)
 
-          object.buzz { true }
-          object.should be_called
+          object.foo { :block }
+          object.results.should == [:bar, :block]
         end
       end
 
       describe "callback blocks" do
         it "enables halting of method call" do
-          callbacker.before(:bar, :no)
+          callbacker.before(:foo, :no)
 
-          object.bar
-          object.should_not be_called
+          object.foo
+          object.results.should be_empty
         end
 
         it "can be more than one per method" do
@@ -164,33 +171,25 @@ describe GotYoBack::Callbacker do
   describe "#after" do
     context "with a block" do
       it "defines after behavior" do
-        callbacker.after(:foo) { @called = true }
+        callbacker.after(:foo) { @results << :after }
 
-        object.should_not be_called
         object.foo
-        object.should be_called
-      end
-
-      it "still performs original behavior" do
-        callbacker.after(:bar) { :ok }
-
-        object.bar
-        object.should be_called
+        object.results.should == [:foo, :after]
       end
 
       describe "redefining methods" do
         it "allows arguments" do
-          callbacker.after(:fizz) { :ok }
+          callbacker.after(:foo) { @results << :after }
 
-          object.fizz(true)
-          object.should be_called
+          object.foo(:arg)
+          object.results.should == [:arg, :after]
         end
 
         it "allows a block" do
-          callbacker.after(:buzz) { :ok }
+          callbacker.after(:foo) { @results << :after }
 
-          object.buzz { true }
-          object.should be_called
+          object.foo { :block }
+          object.results.should == [:block, :after]
         end
 
         it "only happens once" do
@@ -203,10 +202,10 @@ describe GotYoBack::Callbacker do
 
       describe "callback blocks" do
         it "cannot enable halting of method call" do
-          callbacker.after(:bar) { false }
+          callbacker.after(:foo) { false }
 
-          object.bar
-          object.should be_called
+          object.foo
+          object.results.should == [:foo]
         end
 
         it "can be more than one per method" do
@@ -220,11 +219,10 @@ describe GotYoBack::Callbacker do
         end
 
         it "gets access to result of method call" do
-          callbacker.after(:foo) { |result| @called = result }
+          callbacker.after(:foo) { |result| @results << result }
 
-          object.should_not be_called
           object.foo
-          object.should be_called
+          object.results.should == [:foo, :foo]
         end
 
         it "can throw alternative result" do
@@ -237,51 +235,41 @@ describe GotYoBack::Callbacker do
     
     context "with a symbol" do
       it "defines after behavior" do
-        callbacker.after(:foo, :bar)
+        callbacker.after(:foo, :is_bar?)
 
-        object.should_not be_called
         object.foo
-        object.should be_called
-      end
-
-      it "still performs original behavior" do
-        callbacker.after(:bar, :foo)
-        
-        object.should_not be_called
-        object.bar
-        object.should be_called
+        object.results.should == [:foo, false]
       end
 
       describe "redefining methods" do
         it "allows arguments" do
-          callbacker.after(:fizz, :foo)
+          callbacker.after(:foo, :is_bar?)
 
-          object.fizz(true)
-          object.should be_called
+          object.foo(:bar)
+          object.results.should == [:bar, true]
         end
 
         it "allows a block" do
-          callbacker.after(:buzz, :foo)
+          callbacker.after(:foo, :bar)
 
-          object.buzz { true }
-          object.should be_called
+          object.foo { :block }
+          object.results.should == [:block, :foo]
         end
       end
 
       describe "callback blocks" do
         it "cannot enable halting of method call" do
-          callbacker.after(:bar, :no)
+          callbacker.after(:foo, :no)
 
-          object.bar
-          object.should be_called
+          object.foo
+          object.results.should == [:foo]
         end
 
         it "gets access to result of method call" do
-          callbacker.after(:foo, :fizz)
+          callbacker.after(:foo, :bar)
 
-          object.should_not be_called
-          object.foo
-          object.should be_called
+          object.foo(:arg)
+          object.results.should == [:arg, :arg]
         end
         
         it "can be more than one per method" do

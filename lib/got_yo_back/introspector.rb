@@ -22,7 +22,7 @@ module GotYoBack
     
     def observe(method_id, &block)
       observe_klass!
-      @observed_methods[method_id] = block_given? ? block : proc { }
+      @observed_methods[method_id] = block || proc { }
     end
     
     def check_method(method_id)

@@ -1,33 +1,118 @@
 h1. Got Yo Back
 
-Callbacks for Ruby. Ya heard? I'll let you know when it's ready.
+Callbacks for Ruby.
 
-h3. How it's going to work
+h3. How it works
+
+Basically, you get two methods: @before@ and @after@. Each of these
+takes a method name, then a splat args of symbols and/or a block. The
+symbols/block will be called before/after the method you specified.
+
+h3. Simple Example
+<pre>
+class Something
+  attr_reader :results
+
+  before :foo, :setup
+  after  :foo, :teardown
+  
+  before :bar do
+    @results << :before
+  end
+  
+  after :bar do
+    @results << :after
+  end
+
+  def initialize
+    @results = []
+  end
+
+  def foo; @results << :foo; :foo end
+  def bar; @results << :bar; :bar end
+
+  def setup; @results << :setup end
+  def teardown; @results << :teardown end
+end
+</pre>
+
+<pre>
+something = Something.new
+something.foo # => :foo
+something.results # => [:setup, :foo, :teardown]
+
+something = Something.new
+something.bar # => :bar
+something.results # => [:before, :bar, :after]
+</pre>
+
+h3. Calling Methods without Callbacks
+
+Use the @#pristine@ method to call your methods without any callbacks.
+Here's an example with the same example class we used above:
+
+<pre>
+something = Something.new
+something.pristine(:foo)
+something.results # => [:foo]
+something.pristine(:bar)
+something.results # => [:foo, :bar]
+</pre>
+
+h3. Preventing a method from being called
+
+If a @before@ callback returns false, then the original method will
+not be called. If you want to halt the method being called, but still
+want to provide a return value, you can @throw@ the name of the method:
 
 <pre>
 class Something
-
   before :foo do
-    # do something before :foo
-  end
-
-  after :bar do |result_of_bar|
-    # do something after :bar
+    throw :foo, "from the callback"
   end
 
   def foo
-    :foo
-  end
-
-  def bar
-    :bar
+    "from the method"
   end
 end
+
+Something.new.foo # => "from the callback"
+</pre>
+
+h3. @after@ callbacks get the results of the method call
+
+Your @after@ callbacks will be passed whatever the original method
+call returned:
+
+<pre>
+class Something
+  attr_reader :name
+
+  after :foo do |result|
+    @name = result.to_s.capitalize
+  end
+  
+  def foo
+    :foo
+  end
+end
+</pre>
+
+<pre>
+something = Something.new
+something.name # => nil
+something.foo  # => :foo
+something.name # => "Foo"
 </pre>
 
 h3. Why?
 
 Why not?
+
+h4. TODO
+
+* Get a gemspec together
+* Spec suite could definitely be more readable
 
 h4. "View the CI build":http://ci.patnakajima.com/got-yo-back
 

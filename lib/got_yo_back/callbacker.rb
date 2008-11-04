@@ -73,7 +73,7 @@ module GotYoBack
     module InstanceMethods
       def pristine(method_id, *args, &block)
         if method = self.class.pristine_cache[method_id]
-          method.bind(self).call *args, &block
+          method.bind(self).call(*args, &block)
         else
           raise NoMethodError, "No method named #{method_id.inspect}"
         end
