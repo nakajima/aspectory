@@ -26,9 +26,7 @@ module GotYoBack
     end
     
     def check_method(method_id)
-      if block = @observed_methods.delete(method_id)
-        block.call
-      end
+      @observed_methods.delete(method_id).call rescue nil
     end
     
     def defined_methods
