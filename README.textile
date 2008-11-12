@@ -121,6 +121,6 @@ h4. TODO
 * Spec suite could definitely be more readable
 * Take a look at "AspectR":http://aspectr.sourceforge.net to see if I can learn anything
 
-h4. "View the CI build":http://ci.patnakajima.com/got-yo-back
+h4. "View the CI build":http://ci.patnakajima.com/booty-call
 
 @(c) Copyright 2008 Pat Nakajima, released under MIT License.@
