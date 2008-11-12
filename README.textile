@@ -12,6 +12,8 @@ h3. Simple Example
 
 <pre>
 class Something
+  include BootyCall::Hook
+
   attr_reader :results
 
   before :foo, :setup
@@ -117,7 +119,6 @@ h3. Requirements
 
 h4. TODO
 
-* Get a gemspec together
 * Spec suite could definitely be more readable
 * Take a look at "AspectR":http://aspectr.sourceforge.net to see if I can learn anything
 
