@@ -1,7 +1,7 @@
 require 'spec/spec_helper'
 
-describe GotYoBack do
+describe BootyCall do
   it "exists, so this spec doesn't blow up" do
-    GotYoBack
+    BootyCall
   end
 end

@@ -1,11 +1,11 @@
 require 'spec/spec_helper'
 
-describe GotYoBack::Hook do
+describe BootyCall::Hook do
   attr_reader :klass, :object
   
   before(:each) do
     @klass = Class.new do
-      include GotYoBack::Hook
+      include BootyCall::Hook
       
       after :bar, :call!
       before :foo, :call!

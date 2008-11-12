@@ -1,6 +1,6 @@
-$LOAD_PATH << File.dirname(__FILE__) + '/got_yo_back'
+$LOAD_PATH << File.dirname(__FILE__) + '/booty_call'
 
-module GotYoBack
+module BootyCall
   VERSION = '0.0.1'
 end
 

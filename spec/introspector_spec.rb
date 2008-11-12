@@ -1,11 +1,11 @@
 require 'spec/spec_helper'
 
-describe GotYoBack::Introspector do
+describe BootyCall::Introspector do
   attr_reader :klass, :introspector
   
   before(:each) do
     @klass = Class.new { def foo; :foo end }
-    @introspector = GotYoBack::Introspector.new(@klass)
+    @introspector = BootyCall::Introspector.new(@klass)
   end
   
   it "knows defined methods" do

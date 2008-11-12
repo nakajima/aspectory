@@ -1,6 +1,6 @@
-h1. Got Yo Back
+h1. BOOTY CALL
 
-Callbacks for Ruby.
+h2. Callbacks for Ruby.
 
 h3. How it works
 

@@ -1,6 +1,6 @@
 require 'spec/spec_helper'
 
-describe GotYoBack::Callbacker do
+describe BootyCall::Callbacker do
   attr_reader :klass, :callbacker, :object
   
   before(:each) do
@@ -34,7 +34,7 @@ describe GotYoBack::Callbacker do
       end
     end
     
-    @callbacker = GotYoBack::Callbacker.new(klass)
+    @callbacker = BootyCall::Callbacker.new(klass)
     @object = klass.new
   end
   

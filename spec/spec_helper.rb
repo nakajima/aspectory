@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../lib/got_yo_back.rb'
+require File.dirname(__FILE__) + '/../lib/booty_call.rb'
 require 'rubygems'
 require 'spec'
 require 'rr'

@@ -1,10 +1,10 @@
-module GotYoBack
+module BootyCall
   module Hook
     def self.included(klass)
       klass.class_eval do
         extend(ClassMethods)
-        @callbacker = GotYoBack::Callbacker.new(self)
-        @introspector = GotYoBack::Introspector.new(self)
+        @callbacker = BootyCall::Callbacker.new(self)
+        @introspector = BootyCall::Introspector.new(self)
       end
     end
     

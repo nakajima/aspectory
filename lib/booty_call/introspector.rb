@@ -1,4 +1,4 @@
-module GotYoBack
+module BootyCall
   class Introspector
     attr_reader :klass
     

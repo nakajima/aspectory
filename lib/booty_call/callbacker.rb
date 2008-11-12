@@ -1,4 +1,4 @@
-module GotYoBack
+module BootyCall
   class Callbacker
     attr_reader :klass
     
