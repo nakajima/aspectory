@@ -28,14 +28,16 @@ module GotYoBack
     end
     
     def add_callback(position, method_id, *symbols, &block)
-      klass.callback_cache[position][method_id] += symbols
-      klass.callback_cache[position][method_id] << block
-      klass.callback_cache[position][method_id].compact!
+      klass.callback_cache[position][method_id].tap do |slot|
+        slot.push(block) if block_given?
+        slot.concat(symbols)
+        slot.tap.compact!.uniq!
+      end
       
       klass.pristine_cache[method_id] ||= begin
-        pristine_method = klass.instance_method(method_id)
-        redefine_method method_id
-        pristine_method
+        klass.instance_method(method_id).tap do
+          redefine_method method_id
+        end
       end
     end
     

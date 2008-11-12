@@ -187,6 +187,15 @@ describe GotYoBack::Callbacker do
 
           object.foo
         end
+        
+        it "doesn't run same callback twice for same method" do
+          callbacker.before(:foo, :ping!)
+          callbacker.before(:foo, :ping!)
+          
+          mock(object).ping!.once
+          
+          object.foo
+        end
       end
     end
   end
@@ -262,6 +271,15 @@ describe GotYoBack::Callbacker do
 
         object.foo
         object.results.should == [:foo, false]
+      end
+      
+      it "doesn't run same callback twice for same method" do
+        callbacker.after(:foo, :ping!)
+        callbacker.after(:foo, :ping!)
+        
+        mock(object).ping!(anything).once
+        
+        object.foo
       end
 
       describe "redefining methods" do

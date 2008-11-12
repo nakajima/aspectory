@@ -23,9 +23,10 @@ module GotYoBack
     def observe(method_id, &block)
       observe_klass!
       @observed_methods[method_id] ||= []
-      @observed_methods[method_id] << proc(&block) if block_given?
-      @observed_methods[method_id].compact!
-      @observed_methods[method_id].uniq!
+      @observed_methods[method_id].tap do |set|
+        set.push(block) if block_given?
+        set.tap.compact!.uniq!
+      end
     end
     
     def check_method(method_id)
