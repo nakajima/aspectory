@@ -19,7 +19,6 @@ module BootyCall
     
     def extend_klass
       klass.class_eval do
-        meta_eval { attr_reader :pristine_cache, :callback_cache }
         @pristine_cache = Hash.new
         @callback_cache = { :after => Hash.new([]), :before => Hash.new([]) }
         extend ClassMethods
@@ -59,6 +58,14 @@ module BootyCall
     end
     
     module ClassMethods
+      def pristine_cache
+        @pristine_cache || superclass.pristine_cache
+      end
+      
+      def callback_cache
+        @callback_cache || superclass.callback_cache
+      end
+      
       def run_callbacks_for(target, position, method_id, *results)
         callbacks = callback_cache[position][method_id.to_sym]
         

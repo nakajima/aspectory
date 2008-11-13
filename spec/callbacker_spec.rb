@@ -1,7 +1,7 @@
 require 'spec/spec_helper'
 
 describe BootyCall::Callbacker do
-  attr_reader :klass, :callbacker, :object
+  attr_reader :klass, :subklass, :callbacker, :object
   
   before(:each) do
     @klass = Class.new do
@@ -84,7 +84,33 @@ describe BootyCall::Callbacker do
         object.foo
         object.results.should == [:before, :foo]
       end
-
+      
+      describe "subclass behavior" do
+        before(:each) do
+          callbacker.before(:foo) { @results << :before }
+          @subklass = Class.new(klass)
+          @object = @subklass.new
+        end
+        
+        it "runs superclass' callbacks" do
+          object.foo
+          object.results.should == [:before, :foo]
+        end
+        
+        it "works with subclasses of subclasses" do
+          subsubklass = Class.new(subklass)
+          subobject = subsubklass.new
+          subobject.foo
+          subobject.results.should == [:before, :foo]
+        end
+        
+        it "has subclass specific callbacks" do
+          callbacker.before(:bar) { @results << :subbed }
+          object.bar
+          object.results.should == [:before, :subbed, :bar]
+        end
+      end
+      
       describe "redefining methods" do
         it "allows arguments" do
           callbacker.before(:foo) { @results << :before }
@@ -140,7 +166,6 @@ describe BootyCall::Callbacker do
             object.results.should be_empty
           end
         end
-        
       end
     end
     
@@ -229,6 +254,32 @@ describe BootyCall::Callbacker do
 
           callbacker.after(:bar) { true }
           callbacker.after(:bar) { false }
+        end
+      end
+      
+      describe "subclass behavior" do
+        before(:each) do
+          callbacker.after(:foo) { @results << :after }
+          @subklass = Class.new(klass)
+          @object = @subklass.new
+        end
+        
+        it "runs superclass' callbacks" do
+          object.foo
+          object.results.should == [:foo, :after]
+        end
+        
+        it "works with subclasses of subclasses" do
+          subsubklass = Class.new(subklass)
+          subobject = subsubklass.new
+          subobject.foo
+          subobject.results.should == [:foo, :after]
+        end
+        
+        it "has subclass specific callbacks" do
+          callbacker.after(:bar) { @results << :subbed }
+          object.bar
+          object.results.should == [:bar, :after, :subbed]
         end
       end
 
