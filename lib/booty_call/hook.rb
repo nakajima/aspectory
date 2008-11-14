@@ -24,9 +24,18 @@ module BootyCall
       end
       
       def callback(position, method_id, *args, &block)
-        @introspector.defined_methods.include?(method_id) ?
-          @callbacker.send(position, method_id, *args, &block) :
-          observe(method_id) { send(position, method_id, *args, &block) }
+        case method_id
+        when Regexp
+          observe(method_id, :times => :all) { |m| send(position, m, *args, &block) }
+          @introspector.defined_methods.map(&:to_s).each do |m|
+            next unless m =~ method_id
+            callback(position, m.to_sym, *args, &block) 
+          end
+        when Symbol
+          @introspector.defined_methods.include?(method_id) ?
+            @callbacker.send(position, method_id, *args, &block) :
+            observe(method_id) { send(position, method_id, *args, &block) }
+        end
       end
     end
   end

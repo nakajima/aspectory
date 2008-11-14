@@ -33,14 +33,16 @@ module BootyCall
     
     def check_method(sym)
       @observed_methods.each do |method_id, observer|
-        stop_observing(method_id) do
+        without_observers(method_id) do
           observer.match(sym)
           observer.valid?
         end
       end
     end
     
-    def stop_observing(method_id, &block)
+    private
+    
+    def without_observers(method_id, &block)
       @observed_methods.delete(method_id).tap do |observer|
         @observed_methods[method_id] = observer if block.try(:call, observer)
       end

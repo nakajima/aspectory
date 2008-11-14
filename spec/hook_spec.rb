@@ -36,6 +36,24 @@ describe BootyCall::Hook do
       object.buzz
       object.should be_called
     end
+    
+    it "allows regex declarations of callback behavior for defined methods" do
+      klass.class_eval { before(/foo|bar/, :regexd!) }
+      mock(object).regexd!.twice
+      object.foo
+      object.bar
+    end
+    
+    it "allows regex declarations of callback behavior for undefined methods" do
+      klass.class_eval { before(/ping|pong/, :regexd!) }
+      
+      klass.class_eval { def ping; :ping end }
+      klass.class_eval { def pong; :pong end }
+      
+      mock(object).regexd!.twice
+      object.ping
+      object.pong
+    end
   end
   
   describe "#after" do
@@ -46,11 +64,31 @@ describe BootyCall::Hook do
     end
 
     it "allows callbacks to be defined after methods are" do
-      klass.before(:buzz, :call!)
+      klass.after(:buzz, :call!)
 
       object.should_not be_called
       object.buzz
       object.should be_called
+    end
+    
+    it "allows regex declarations of callback behavior for defined methods" do
+      klass.class_eval { after(/foo|bar/, :regexd!) }
+      mock(object).regexd!(:foo)
+      mock(object).regexd!(:bar)
+      object.foo
+      object.bar
+    end
+    
+    it "allows regex declarations of callback behavior for undefined methods" do
+      klass.class_eval { after(/ping|pong/, :regexd!) }
+      
+      klass.class_eval { def ping; :ping end }
+      klass.class_eval { def pong; :pong end }
+      
+      mock(object).regexd!(:ping)
+      mock(object).regexd!(:pong)
+      object.ping
+      object.pong
     end
   end
   
