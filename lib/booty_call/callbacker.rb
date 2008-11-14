@@ -52,7 +52,7 @@ module BootyCall
           catch(#{method_id.to_sym.inspect}) do
             result = nil
             return unless run_callbacks(:before, #{method_id.inspect})
-            return unless run_callbacks(:around, #{method_id.inspect}) do
+            run_callbacks(:around, #{method_id.inspect}) do
               result = __PRISTINE__(#{method_id.inspect}, *args, &block)
             end
             run_callbacks(:after, #{method_id.inspect}, result)

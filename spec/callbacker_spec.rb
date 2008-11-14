@@ -353,6 +353,12 @@ describe BootyCall::Callbacker do
           object.foo
           object.results.should == [:foo]
         end
+        
+        it "still gets called when method returns false" do
+          callbacker.after(:bar?) { @results << :called }
+          object.bar?(:foo)
+          object.results.should == [false, :called]
+        end
 
         it "can be more than one per method" do
           callbacker.after(:foo) { ping! }
@@ -419,7 +425,7 @@ describe BootyCall::Callbacker do
           object.foo
           object.results.should == [:foo]
         end
-
+        
         it "gets access to result of method call" do
           callbacker.after(:foo, :bar)
 
