@@ -37,6 +37,12 @@ describe BootyCall::Callbacker do
         @results << (arg == :bar)
       end
       
+      def wrapify
+        @results << :before
+        yield
+        @results << :after
+      end
+      
       def pitch
         throw :foo, :result
       end
@@ -434,6 +440,207 @@ describe BootyCall::Callbacker do
         it "can throw alternative result" do
           callbacker.after(:foo, :pitch)
 
+          object.foo.should == :result
+        end
+      end
+    end
+  end
+  
+  describe "#around" do
+    context "with a block" do
+      it "returns proper result" do
+        callbacker.around(:foo) do |fn|
+          @results << :before
+          fn.call
+          @results << :after
+        end
+        
+        object.foo.should == :foo
+      end
+      
+      it "defines after behavior" do
+        callbacker.around(:foo) do |fn|
+          @results << :before
+          fn.call
+          @results << :after
+        end
+
+        object.foo
+        object.results.should == [:before, :foo, :after]
+      end
+      
+      describe "redefining methods" do
+        it "allows arguments" do
+          callbacker.around(:foo) do |fn|
+            @results << :before
+            fn.call
+            @results << :after
+          end
+    
+          object.foo(:arg)
+          object.results.should == [:before, :arg, :after]
+        end
+    
+        it "allows a block" do
+          callbacker.around(:foo) do |fn|
+            @results << :before
+            fn.call
+            @results << :after
+          end
+            
+          object.foo { :block }
+          object.results.should == [:before, :block, :after]
+        end
+   
+        it "only happens once" do
+          mock(callbacker).redefine_method(anything).once
+            
+          callbacker.around(:bar) { true }
+          callbacker.around(:bar) { false }
+        end
+      end
+      
+      describe "special method name endings" do
+        it "works with bang methods" do
+          callbacker.around(:bar!) do |fn|
+            @results << :before
+            fn.call
+            @results << :after
+          end
+          object.bar! :bar
+          object.results.should == [:before, :bar, :after]
+        end
+        
+        it "works with predicate methods" do
+          callbacker.around(:bar?) do |fn|
+            @results << :before
+            fn.call
+            @results << :after
+          end
+          object.bar?(:bar)
+          object.results.should == [:before, true, :after]
+        end
+        
+        it "works with assignment methods" do
+          callbacker.around(:bar=) do |fn|
+            @results << :before
+            fn.call
+            @results << :after
+          end
+          object.bar = :bar
+          object.results.should == [:before, :bar, :after]
+        end
+      end
+      
+      describe "subclass behavior" do
+        before(:each) do
+          callbacker.around(:foo) do |fn|
+            @results << :before
+            fn.call
+            @results << :after
+          end
+          @subklass = Class.new(klass)
+          @object = @subklass.new
+        end
+        
+        it "runs superclass' callbacks" do
+          object.foo
+          object.results.should == [:before, :foo, :after]
+        end
+        
+        it "works with subclasses of subclasses" do
+          subsubklass = Class.new(subklass)
+          subobject = subsubklass.new
+          subobject.foo
+          subobject.results.should == [:before, :foo, :after]
+        end
+        
+        it "has subclass specific callbacks" do
+          callbacker.after(:bar) { @results << :subbed }
+          object.bar
+          object.results.should == [:before, :bar, :after, :subbed]
+        end
+      end
+    
+      describe "callback blocks" do
+        it "can enable halting of method call" do
+          callbacker.around(:foo) { false }
+    
+          object.foo
+          object.results.should be_empty
+        end
+    
+        it "can be more than one per method" do
+          callbacker.around(:foo) { ping! }
+          callbacker.around(:foo) { pong! }
+            
+          mock(object).ping!
+          mock(object).pong!
+            
+          object.foo
+        end
+            
+        it "can throw alternative result" do
+          callbacker.around(:foo) { |fn| fn.call and throw :foo, :result }
+            
+          object.foo.should == :result
+        end
+      end
+    end
+    
+    context "with a symbol" do
+      it "returns proper result" do
+        callbacker.around(:foo, :wrapify)
+        
+        object.foo.should == :foo
+      end
+      
+      it "defines after behavior" do
+        callbacker.around(:foo, :wrapify)
+    
+        object.foo
+        object.results.should == [:before, :foo, :after]
+      end
+      
+      it "doesn't run same callback twice for same method" do
+        callbacker.around(:foo, :ping!)
+        callbacker.around(:foo, :ping!)
+        
+        mock(object).ping!.once
+        
+        object.foo
+      end
+    
+      describe "redefining methods" do
+        it "allows arguments" do
+          callbacker.around(:foo, :wrapify)
+    
+          object.foo(:bar)
+          object.results.should == [:before, :bar, :after]
+        end
+    
+        it "allows a block" do
+          callbacker.around(:foo, :wrapify)
+    
+          object.foo { :block }
+          object.results.should == [:before, :block, :after]
+        end
+      end
+    
+      describe "callback blocks" do
+        it "can be more than one per method" do
+          callbacker.around(:foo, :ping!)
+          callbacker.around(:foo, :pong!)
+    
+          mock(object).ping!
+          mock(object).pong!
+    
+          object.foo
+        end
+    
+        it "can throw alternative result" do
+          callbacker.around(:foo, :pitch)
+    
           object.foo.should == :result
         end
       end

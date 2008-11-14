@@ -15,12 +15,16 @@ module BootyCall
       add_callback(:after, method_id, *symbols, &block)
     end
     
+    def around(method_id, *symbols, &block)
+      add_callback(:around, method_id, *symbols, &block)
+    end
+    
     private
     
     def extend_klass
       klass.class_eval do
         @pristine_cache = Hash.new
-        @callback_cache = { :after => Hash.new([]), :before => Hash.new([]) }
+        @callback_cache = { :after => Hash.new([]), :before => Hash.new([]), :around => Hash.new([]) }
         extend ClassMethods
         include InstanceMethods
       end
@@ -46,10 +50,13 @@ module BootyCall
       klass.class_eval(<<-EOS, "(__DELEGATION__)", 1)
         def #{method_id}(*args, &block)
           catch(#{method_id.to_sym.inspect}) do
+            result = nil
             return unless self.class.run_callbacks_for(self, :before, #{method_id.inspect})
-            __PRISTINE__(#{method_id.inspect}, *args, &block).tap do |result|
-              self.class.run_callbacks_for(self, :after, #{method_id.inspect}, result)
+            return unless self.class.run_callbacks_for(self, :around, #{method_id.inspect}) do
+              result = __PRISTINE__(#{method_id.inspect}, *args, &block)
             end
+            self.class.run_callbacks_for(self, :after, #{method_id.inspect}, result)
+            result
           end
         end
         
@@ -68,17 +75,25 @@ module BootyCall
         @callback_cache || superclass.callback_cache
       end
       
-      def run_callbacks_for(target, position, method_id, *results)
+      def run_callbacks_for(target, position, method_id, *results, &block)
         callbacks = callback_cache[position][method_id.to_sym]
         
         handle = proc do |fn|
-          target.method(fn).arity.abs == results.length ?
-            proc { send(fn, *results) } :
-            proc { send(fn) }
+          if fn.is_a?(Proc)
+            block ? proc { instance_exec(block, *results, &fn) } : fn
+          else
+            target.method(fn).arity.abs == results.length ?
+              proc { send(fn, *results, &block) } :
+              proc { send(fn, &block) }
+          end
         end
         
-        callbacks.empty? ? true : callbacks.map { |fn|
-          target.instance_exec(*results, &(fn.is_a?(Proc) ? fn : handle[fn]))
+        cancel = proc do
+          block ? target.instance_eval(&block) : true
+        end
+        
+        callbacks.empty? ? cancel[block] : callbacks.map { |fn|
+          target.instance_exec(*results, &handle[fn])
         }.all?
       end
     end
