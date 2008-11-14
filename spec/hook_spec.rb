@@ -5,7 +5,7 @@ describe BootyCall::Hook do
   
   before(:each) do
     @klass = Class.new do
-      include BootyCall::Hook
+      include BootyCall
       
       after :bar, :call!
       before :foo, :call!

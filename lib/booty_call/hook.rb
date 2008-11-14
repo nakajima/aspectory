@@ -1,4 +1,8 @@
 module BootyCall
+  def self.included(klass)
+    klass.send(:include, Hook)
+  end
+  
   module Hook
     def self.included(klass)
       klass.class_eval do

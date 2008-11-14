@@ -120,7 +120,7 @@ To observe class method definitions, you must pass the @:meta@ option.
 
 <pre>
 class Framework
-  include BootyCall::Hook
+  include BootyCall
   
   # Using a symbol
   observe :admin? do
