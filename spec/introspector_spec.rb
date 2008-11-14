@@ -122,6 +122,30 @@ describe BootyCall::Introspector do
           klass.class_eval { def bar; :bar end }
           klass.class_eval { def bar; :bar end }
         end
+        
+        it "should works with other times terms abbreviation" do
+          mock(callee = Object.new).call!.times(3)
+          introspector.observe(:bar, :times => :any) { callee.call! }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+        end
+        
+        it "should works with :all abbreviation" do
+          mock(callee = Object.new).call!.times(3)
+          introspector.observe(:bar, :times => :all) { callee.call! }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+        end
+        
+        it "should works with :every abbreviation" do
+          mock(callee = Object.new).call!.times(3)
+          introspector.observe(:bar, :times => :every) { callee.call! }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+        end
       end
     end
     

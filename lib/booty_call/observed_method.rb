@@ -1,7 +1,7 @@
 module BootyCall
   class ObservedMethod
     attr_reader :method_id
-
+    
     def initialize(method_id, options={})
       @method_id = method_id
       @callbacks = []
@@ -20,7 +20,7 @@ module BootyCall
     end
     
     def valid?
-      @times.eql?(:infinite) or @count < @times
+      @times.to_s.match(/^(inf|any|all|every)/) or @count < @times
     end
   
     def push(*args)
