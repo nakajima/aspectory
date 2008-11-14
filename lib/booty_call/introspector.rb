@@ -11,7 +11,7 @@ module BootyCall
       @observed ||= begin
         this = self
         klass.meta_def(:method_added) do |m|
-          this.check_method(m)
+          this.send(:check_method, m)
         end; true
       end
     end
@@ -29,13 +29,24 @@ module BootyCall
       end
     end
     
-    def check_method(method_id)
-      handlers = @observed_methods.delete(method_id)
-      handlers.each(&:call) rescue nil
-    end
-    
     def defined_methods
       (klass.instance_methods - Object.instance_methods).map(&:to_sym)
+    end
+    
+    private
+    
+    def check_method(sym)
+      @observed_methods.each do |method_id, handlers|
+        handlers.each(&:call) if method_match?(sym, method_id)
+      end
+    end
+    
+    def method_match?(sym, method_id)
+      case method_id
+      when Symbol then @observed_methods.delete(method_id)
+      when Regexp then @observed_methods.delete(method_id) and sym.to_s.match(method_id)
+      else ; nil
+      end
     end
   end
 end
