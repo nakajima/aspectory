@@ -25,10 +25,14 @@ describe BootyCall::Callbacker do
         @results << (block_given? ? block.call : arg)
       end
       
+      def bar=(arg)
+        @results << arg
+      end
+      
       def is_bar?(arg)
         @results << (arg == :bar)
       end
-
+      
       def pitch
         throw :foo, :result
       end
@@ -83,6 +87,20 @@ describe BootyCall::Callbacker do
 
         object.foo
         object.results.should == [:before, :foo]
+      end
+      
+      describe "special method name endings" do
+        it "works with bang methods" do
+          callbacker.before(:bar=) { @results << :banged }
+          object.bar = :bar
+          object.results.should == [:banged, :bar]
+        end
+        
+        it "works with predicate methods" do
+          callbacker.before(:is_bar?) { @results << :banged }
+          object.is_bar?(:bar)
+          object.results.should == [:banged, true]
+        end
       end
       
       describe "subclass behavior" do
@@ -233,7 +251,7 @@ describe BootyCall::Callbacker do
         object.foo
         object.results.should == [:foo, :after]
       end
-
+      
       describe "redefining methods" do
         it "allows arguments" do
           callbacker.after(:foo) { @results << :after }
@@ -254,6 +272,20 @@ describe BootyCall::Callbacker do
 
           callbacker.after(:bar) { true }
           callbacker.after(:bar) { false }
+        end
+      end
+      
+      describe "special method name endings" do
+        it "works with bang methods" do
+          callbacker.after(:bar=) { @results << :banged }
+          object.bar = :bar
+          object.results.should == [:bar, :banged]
+        end
+        
+        it "works with predicate methods" do
+          callbacker.after(:is_bar?) { @results << :banged }
+          object.is_bar?(:bar)
+          object.results.should == [true, :banged]
         end
       end
       

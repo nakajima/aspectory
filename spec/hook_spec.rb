@@ -87,12 +87,21 @@ describe BootyCall::Hook do
       twice.should be_true
     end
     
-    it "only runs callbacks once" do
+    it "only runs callbacks once by default" do
       called = false
       klass.observe(:boom) { called = !called }
       klass.class_eval { def boom; :boom end }
       klass.class_eval { def boom; :boom end }
       called.should be_true
+    end
+    
+    it "allows callback limits to be specified" do
+      mock(callee = Object.new).call!.times(3)
+      klass.observe(:foo, :times => 3) { callee.call! }
+      klass.class_eval { def foo; :foo end }
+      klass.class_eval { def foo; :foo end }
+      klass.class_eval { def foo; :foo end }
+      klass.class_eval { def foo; :foo end }
     end
   end
 end

@@ -119,6 +119,7 @@ h3. Requirements
 
 h4. TODO
 
+* Figure out a way to get it working with metaclasses
 * Spec suite could definitely be more readable
 * Take a look at "AspectR":http://aspectr.sourceforge.net to see if I can learn anything
 

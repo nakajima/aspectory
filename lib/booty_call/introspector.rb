@@ -1,16 +1,17 @@
 module BootyCall
   class Introspector
-    attr_reader :klass
+    attr_reader :klass, :options
     
-    def initialize(klass)
-      @klass = klass
+    def initialize(klass, options={})
+      @klass, @options = klass, options
       @observed_methods = { }
     end
     
     def observe_klass!
       @observed ||= begin
         this = self
-        klass.meta_def(:method_added) do |m|
+        hook = options[:metaclass] ? :singleton_method_added : :method_added
+        klass.meta_def(hook) do |m|
           this.check_method(m)
         end; true
       end

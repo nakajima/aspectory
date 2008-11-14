@@ -17,8 +17,8 @@ module BootyCall
         callback(:after, method_id, *args, &block)
       end
       
-      def observe(method_id, &block)
-        @introspector.observe(method_id, &block)
+      def observe(method_id, options={}, &block)
+        @introspector.observe(method_id, options, &block)
       end
       
       def callback(position, method_id, *args, &block)

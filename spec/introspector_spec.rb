@@ -19,6 +19,41 @@ describe BootyCall::Introspector do
   end
   
   describe "observing a method" do
+    context "on a metaclass" do
+      attr_reader :meta_introspector
+      
+      before(:each) do
+        @meta_introspector = BootyCall::Introspector.new(klass, :metaclass => true)
+      end
+      
+      it "is stored in #observed_methods" do
+        meta_introspector.observe(:bar) { }
+        meta_introspector.observing?(:bar).should be_true
+      end
+
+      it "ceases when method gets defined" do
+        meta_introspector.observe(:bar)
+        klass.class_eval { def self.bar; :bar end }
+        meta_introspector.observing?(:bar).should be_false
+      end
+    
+      it "allows a callback block for when methods get defined" do
+        called = false
+        meta_introspector.observe(:bar) { called = true }
+        klass.class_eval { def self.bar; :bar end }
+        called.should be_true
+      end
+    
+      it "allows multiple callback blocks" do
+        once = twice = false
+        meta_introspector.observe(:bar) { once = true }
+        meta_introspector.observe(:bar) { twice = true }
+        klass.class_eval { def self.bar; :bar end }
+        once.should be_true
+        twice.should be_true
+      end
+    end
+    
     context "when the method isn't defined" do
       it "is stored in #observed_methods" do
         introspector.observe(:bar) { }

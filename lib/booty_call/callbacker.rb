@@ -41,6 +41,9 @@ module BootyCall
     end
     
     def redefine_method(method_id)
+      safe_method_id = method_id.to_s
+      safe_method_id.gsub!(/=/, '__EQUALS__')
+      safe_method_id.gsub!(/\?/, '__PREDICATE__')
       klass.class_eval(<<-EOS, "(__DELEGATION__)", 1)
         def #{method_id}(*args, &block)
           catch(#{method_id.to_sym.inspect}) do
@@ -51,7 +54,7 @@ module BootyCall
           end
         end
         
-        def #{method_id}_without_callbacks(*args, &block)
+        def #{safe_method_id}_without_callbacks(*args, &block)
           __PRISTINE__(#{method_id.inspect}, *args, &block)
         end
       EOS

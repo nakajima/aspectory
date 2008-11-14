@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{booty-call}
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Pat Nakajima"]
@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.email = %q{patnakajima@gmail.com}
   s.files = [
     "lib/booty_call",
+    "lib/booty-call.rb",
     "lib/booty_call.rb",
     "lib/booty_call/hook.rb",
     "lib/booty_call/callbacker.rb",

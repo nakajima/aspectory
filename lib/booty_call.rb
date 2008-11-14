@@ -1,7 +1,7 @@
 $LOAD_PATH << File.dirname(__FILE__) + '/booty_call'
 
 module BootyCall
-  VERSION = '0.0.1'
+  VERSION = '0.0.2'
 end
 
 require 'rubygems'
