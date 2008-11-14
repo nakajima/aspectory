@@ -103,5 +103,11 @@ describe BootyCall::Hook do
       klass.class_eval { def foo; :foo end }
       klass.class_eval { def foo; :foo end }
     end
+    
+    it "should allows metaclasses to be observed" do
+      mock(callee = Object.new).call!
+      klass.observe(:foo, :meta => true) { callee.call! }
+      klass.class_eval { def self.foo; :foo end }
+    end
   end
 end

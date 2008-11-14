@@ -23,7 +23,7 @@ describe BootyCall::Introspector do
       attr_reader :meta_introspector
       
       before(:each) do
-        @meta_introspector = BootyCall::Introspector.new(klass, :metaclass => true)
+        @meta_introspector = BootyCall::Introspector.new(klass, :meta => true)
       end
       
       it "is stored in #observed_methods" do

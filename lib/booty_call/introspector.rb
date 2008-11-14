@@ -10,7 +10,7 @@ module BootyCall
     def observe_klass!
       @observed ||= begin
         this = self
-        hook = options[:metaclass] ? :singleton_method_added : :method_added
+        hook = options[:meta] ? :singleton_method_added : :method_added
         klass.meta_def(hook) do |m|
           this.check_method(m)
         end; true

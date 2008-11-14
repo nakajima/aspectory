@@ -5,6 +5,7 @@ module BootyCall
         extend(ClassMethods)
         @callbacker = BootyCall::Callbacker.new(self)
         @introspector = BootyCall::Introspector.new(self)
+        @meta_introspector = BootyCall::Introspector.new(self, :meta => true)
       end
     end
     
@@ -18,7 +19,8 @@ module BootyCall
       end
       
       def observe(method_id, options={}, &block)
-        @introspector.observe(method_id, options, &block)
+        observer = options[:meta] ? @meta_introspector : @introspector
+        observer.observe(method_id, options, &block)
       end
       
       def callback(position, method_id, *args, &block)
