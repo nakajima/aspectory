@@ -51,11 +51,11 @@ module BootyCall
         def #{method_id}(*args, &block)
           catch(#{method_id.to_sym.inspect}) do
             result = nil
-            return unless self.class.run_callbacks_for(self, :before, #{method_id.inspect})
-            return unless self.class.run_callbacks_for(self, :around, #{method_id.inspect}) do
+            return unless run_callbacks(:before, #{method_id.inspect})
+            return unless run_callbacks(:around, #{method_id.inspect}) do
               result = __PRISTINE__(#{method_id.inspect}, *args, &block)
             end
-            self.class.run_callbacks_for(self, :after, #{method_id.inspect}, result)
+            run_callbacks(:after, #{method_id.inspect}, result)
             result
           end
         end
@@ -80,7 +80,7 @@ module BootyCall
         
         handle = proc do |fn|
           if fn.is_a?(Proc)
-            block ? proc { instance_exec(block, *results, &fn) } : fn
+            block ? proc { instance_exec(block, &fn) } : fn
           else
             target.method(fn).arity.abs == results.length ?
               proc { send(fn, *results, &block) } :
@@ -99,6 +99,10 @@ module BootyCall
     end
     
     module InstanceMethods
+      def run_callbacks(position, method_id, *args, &block)
+        self.class.run_callbacks_for(self, position, method_id, *args, &block)
+      end
+      
       def __PRISTINE__(method_id, *args, &block)
         if method = self.class.pristine_cache[method_id]
           method.bind(self).call(*args, &block)
