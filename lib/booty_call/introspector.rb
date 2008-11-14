@@ -15,11 +15,8 @@ module BootyCall
     
     def observe_klass!
       @observed ||= begin
-        this = self
-        hook = options[:meta] ? :singleton_method_added : :method_added
-        klass.meta_def(hook) do |m|
-          this.send(:check_method, m)
-        end; true
+        name = options[:meta] ? :singleton_method_added : :method_added
+        install_hook(name) or true
       end
     end
     
@@ -37,6 +34,13 @@ module BootyCall
     
     private
     
+    def install_hook(name)
+      this = self
+      klass.meta_def(name) do |m|
+        this.send :check_method, m
+      end
+    end
+
     def check_method(sym)
       @observed_methods.each do |method_id, observer|
         without_observers(method_id) do
