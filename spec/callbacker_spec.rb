@@ -25,11 +25,15 @@ describe BootyCall::Callbacker do
         @results << (block_given? ? block.call : arg)
       end
       
+      def bar!(arg)
+        @results << arg
+      end
+      
       def bar=(arg)
         @results << arg
       end
       
-      def is_bar?(arg)
+      def bar?(arg)
         @results << (arg == :bar)
       end
       
@@ -70,12 +74,33 @@ describe BootyCall::Callbacker do
       }.should raise_error(NoMethodError)
     end
     
-    describe "foo_without_callbacks methods" do
+    describe "*_without_callbacks methods" do
       it "are generated for methods with callbacks" do
         callbacker.before(:foo) { @results << :before }
 
         object.foo_without_callbacks
         object.results.should == [:foo]
+      end
+      
+      it "are generated for bang methods" do
+        callbacker.before(:bar!) { @results << :before }
+        
+        object.bar_without_callbacks! :bar
+        object.results.should == [:bar]
+      end
+      
+      it "are generated for predicate methods" do
+        callbacker.before(:bar?) { @results << :before }
+        
+        object.bar_without_callbacks? :bar
+        object.results.should == [true]
+      end
+      
+      it "are generated for assignment methods" do
+        callbacker.before(:bar=) { @results << :before }
+        
+        object.bar_without_callbacks = :bar
+        object.results.should == [:bar]
       end
     end
   end
@@ -97,8 +122,8 @@ describe BootyCall::Callbacker do
         end
         
         it "works with predicate methods" do
-          callbacker.before(:is_bar?) { @results << :banged }
-          object.is_bar?(:bar)
+          callbacker.before(:bar?) { @results << :banged }
+          object.bar?(:bar)
           object.results.should == [:banged, true]
         end
       end
@@ -283,8 +308,8 @@ describe BootyCall::Callbacker do
         end
         
         it "works with predicate methods" do
-          callbacker.after(:is_bar?) { @results << :banged }
-          object.is_bar?(:bar)
+          callbacker.after(:bar?) { @results << :banged }
+          object.bar?(:bar)
           object.results.should == [true, :banged]
         end
       end
@@ -350,7 +375,7 @@ describe BootyCall::Callbacker do
     
     context "with a symbol" do
       it "defines after behavior" do
-        callbacker.after(:foo, :is_bar?)
+        callbacker.after(:foo, :bar?)
 
         object.foo
         object.results.should == [:foo, false]
@@ -367,7 +392,7 @@ describe BootyCall::Callbacker do
 
       describe "redefining methods" do
         it "allows arguments" do
-          callbacker.after(:foo, :is_bar?)
+          callbacker.after(:foo, :bar?)
 
           object.foo(:bar)
           object.results.should == [:bar, true]
