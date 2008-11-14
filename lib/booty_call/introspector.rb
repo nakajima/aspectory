@@ -12,7 +12,7 @@ module BootyCall
         this = self
         klass.meta_def(:method_added) do |m|
           this.check_method(m)
-        end and true
+        end; true
       end
     end
     

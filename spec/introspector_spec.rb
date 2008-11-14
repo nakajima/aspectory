@@ -13,7 +13,9 @@ describe BootyCall::Introspector do
   end
   
   it "only observes klass once" do
-    introspector.observe_klass!.should be_true
+    mock(klass).meta_def(:method_added).once
+    introspector.observe_klass!
+    introspector.observe_klass!
   end
   
   describe "observing a method" do
