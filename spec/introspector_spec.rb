@@ -54,6 +54,40 @@ describe BootyCall::Introspector do
         klass.class_eval { def bar; :bar end }
         once.should be_true
       end
+      
+      describe "specifying limits" do
+        it "allows a :times option" do
+          mock(callee = Object.new).call!
+          introspector.observe(:bar, :times => 1) { callee.call! }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+        end
+        
+        it "allows callback to be run 2 times" do
+          mock(callee = Object.new).call!.times(2)
+          introspector.observe(:bar, :times => 2) { callee.call! }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+        end
+        
+        it "allows callback to be run 3 times" do
+          mock(callee = Object.new).call!.times(3)
+          introspector.observe(:bar, :times => 3) { callee.call! }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+        end
+        
+        it "allows callback to be run every time" do
+          mock(callee = Object.new).call!.times(3)
+          introspector.observe(:bar, :times => :infinite) { callee.call! }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+          klass.class_eval { def bar; :bar end }
+        end
+      end
     end
     
     context "when the method is defined" do
@@ -116,11 +150,18 @@ describe BootyCall::Introspector do
     
       it "allows multiple callback blocks" do
         once = twice = false
-        introspector.observe(/(foo|bar)/) { once = true }
+        introspector.observe(/(bar)/) { once = true }
         introspector.observe(/(foo|bar)/) { twice = true }
         klass.class_eval { def bar; :bar end }
         once.should be_true
         twice.should be_true
+      end
+      
+      it "passes the method name" do
+        called = false
+        introspector.observe(/(foo|bar)/) { |method_id| called = method_id.eql?(:bar) }
+        klass.class_eval { def bar; :bar end }
+        called.should be_true
       end
     
       it "only runs callbacks once" do

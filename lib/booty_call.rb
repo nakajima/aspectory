@@ -7,5 +7,6 @@ end
 require 'rubygems'
 require 'nakajima'
 require 'callbacker'
+require 'observed_method'
 require 'introspector'
 require 'hook'

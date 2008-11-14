@@ -11,7 +11,7 @@ module BootyCall
       @observed ||= begin
         this = self
         klass.meta_def(:method_added) do |m|
-          this.send(:check_method, m)
+          this.check_method(m)
         end; true
       end
     end
@@ -20,32 +20,28 @@ module BootyCall
       not not @observed_methods[method_id]
     end
     
-    def observe(method_id, &block)
+    def observe(method_id, options={}, &block)
       observe_klass!
-      @observed_methods[method_id] ||= []
-      @observed_methods[method_id].tap do |set|
-        set.push(block) if block_given?
-        set.tap.compact!.uniq!
-      end
+      @observed_methods[method_id] ||= ObservedMethod.new(method_id, options)
+      @observed_methods[method_id].push(block) if block_given?
     end
     
     def defined_methods
       (klass.instance_methods - Object.instance_methods).map(&:to_sym)
     end
     
-    private
-    
     def check_method(sym)
-      @observed_methods.each do |method_id, handlers|
-        handlers.each(&:call) if method_match?(sym, method_id)
+      @observed_methods.each do |method_id, observer|
+        stop_observing(method_id) do
+          observer.match(sym)
+          observer.valid?
+        end
       end
     end
     
-    def method_match?(sym, method_id)
-      case method_id
-      when Symbol then @observed_methods.delete(method_id)
-      when Regexp then @observed_methods.delete(method_id) and sym.to_s.match(method_id)
-      else ; nil
+    def stop_observing(method_id, &block)
+      @observed_methods.delete(method_id).tap do |observer|
+        @observed_methods[method_id] = observer if block.try(:call, observer)
       end
     end
   end
