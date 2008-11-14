@@ -12,6 +12,14 @@ describe BootyCall::Introspector do
     introspector.defined_methods.should == [:foo]
   end
   
+  it "knows if a method is defined" do
+    introspector.should have_method(:foo)
+  end
+  
+  it "knows if a method is not defined" do
+    introspector.should_not have_method(:bar)
+  end
+  
   it "only observes klass once" do
     mock(klass).meta_def(:method_added).once
     introspector.observe_klass!

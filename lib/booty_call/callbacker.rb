@@ -71,16 +71,14 @@ module BootyCall
       def run_callbacks_for(target, position, method_id, *results)
         callbacks = callback_cache[position][method_id.to_sym]
         
-        handler = proc do |fn|
-          fn.is_a?(Proc) ? fn : begin
-            target.method(fn).arity.abs == results.length ?
-              proc { send(fn, *results) } :
-              proc { send(fn) }
-          end
+        handle = proc do |fn|
+          target.method(fn).arity.abs == results.length ?
+            proc { send(fn, *results) } :
+            proc { send(fn) }
         end
         
         callbacks.empty? ? true : callbacks.map { |fn|
-          target.instance_exec(*results, &handler.call(fn))
+          target.instance_exec(*results, &(fn.is_a?(Proc) ? fn : handle[fn]))
         }.all?
       end
     end

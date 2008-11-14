@@ -32,7 +32,7 @@ module BootyCall
             callback(position, m.to_sym, *args, &block) 
           end
         when Symbol
-          @introspector.defined_methods.include?(method_id) ?
+          @introspector.has_method?(method_id) ?
             @callbacker.send(position, method_id, *args, &block) :
             observe(method_id) { send(position, method_id, *args, &block) }
         end
