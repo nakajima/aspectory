@@ -1,4 +1,4 @@
-h1. BOOTY CALL
+h1. Booty Call
 
 h2. Callbacks for Ruby.
 
@@ -109,6 +109,41 @@ something.foo  # => :foo
 something.name # => "Foo"
 </pre>
 
+h3. Observing method definitions
+
+If you ever want to see when a method is defined in a class, you can register
+observers using the @observe@ method. It can take either a symbol or a regular
+expression, then a callback block will be called when the method is defined. The
+callback block will be passed the name of the method defined.
+
+To observe class method definitions, you must pass the @:meta@ option.
+
+<pre>
+class Framework
+  include BootyCall::Hook
+  
+  # Using a symbol
+  observe :admin? do
+    puts "Warning! Overriding the admin method can be dangerous."
+  end
+
+  # Using a regular expression
+  observe(/^_/) do |method_id|
+    puts "Warning! The #{method_id} is not part of the public API!"
+  end
+  
+  # Observing a class method definition
+  observe(:find_by_name, :meta => true) do
+    puts "The method :find_by_name already exists in the framework."
+  end
+  
+  # Observing multiple occurrences of a method definition
+  observe(/^show_by_/, :times => true) do |method_id|
+    puts "dynamic showing defined: #{method_id}"
+  end
+end
+</pre>
+
 h3. Why?
 
 Why not?
@@ -121,7 +156,11 @@ h4. TODO
 
 * Figure out a way to get it working with metaclasses
 * Spec suite could definitely be more readable
-* Take a look at "AspectR":http://aspectr.sourceforge.net to see if I can learn anything
+
+h4. Alternatives:
+
+* "AspectR":http://aspectr.sourceforge.net
+* "Aquarium":http://aquarium.rubyforge.org/
 
 h4. "View the CI build":http://ci.patnakajima.com/booty-call
 
