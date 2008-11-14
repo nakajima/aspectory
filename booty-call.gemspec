@@ -8,7 +8,14 @@ Gem::Specification.new do |s|
   s.authors = ["Pat Nakajima"]
   s.date = %q{2008-11-12}
   s.email = %q{patnakajima@gmail.com}
-  s.files = ["lib/booty_call", "lib/booty_call/callbacker.rb", "lib/booty_call/hook.rb", "lib/booty_call/introspector.rb", "lib/booty_call.rb"]
+  s.files = [
+    "lib/booty_call",
+    "lib/booty_call.rb",
+    "lib/booty_call/hook.rb",
+    "lib/booty_call/callbacker.rb",
+    "lib/booty_call/introspector.rb",
+    "lib/booty_call/observed_method.rb"
+  ]
   s.homepage = %q{http://github.com/nakajima/booty-call}
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.0}
