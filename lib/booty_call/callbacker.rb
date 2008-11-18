@@ -50,13 +50,11 @@ module BootyCall
       klass.class_eval(<<-EOS, "(__DELEGATION__)", 1)
         def #{method_id}(*args, &block)
           catch(#{method_id.to_sym.inspect}) do
-            result = nil
-            return unless run_callbacks(:before, #{method_id.inspect})
-            run_callbacks(:around, #{method_id.inspect}) do
-              result = __PRISTINE__(#{method_id.inspect}, *args, &block)
-            end
-            run_callbacks(:after, #{method_id.inspect}, result)
-            result
+            res = nil
+            run_callbacks(:before, #{method_id.inspect})
+            run_callbacks(:around, #{method_id.inspect}) { res = __PRISTINE__(#{method_id.inspect}, *args, &block) }
+            run_callbacks(:after,  #{method_id.inspect}, res)
+            res
           end
         end
         
@@ -100,7 +98,10 @@ module BootyCall
     
     module InstanceMethods
       def run_callbacks(position, method_id, *args, &block)
-        self.class.run_callbacks_for(self, position, method_id, *args, &block)
+        self.class.run_callbacks_for(self, position, method_id, *args, &block).tap do |result|
+          # Halt method propagation if before callbacks return false
+          throw(method_id, false) if position.eql?(:before) and result.eql?(false)
+        end
       end
       
       def __PRISTINE__(method_id, *args, &block)
