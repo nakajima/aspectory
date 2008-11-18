@@ -9,6 +9,7 @@ describe BootyCall::Hook do
       
       after :bar, :call!
       before :foo, :call!
+      around(:fizz) { |fn| call!; fn.call }
       callback :before, :fizz, :call!
       
       def foo; :foo end
@@ -17,6 +18,7 @@ describe BootyCall::Hook do
       def buzz; :buzz end
       def call!; @called = true end
       def called?; @called end
+      def round(fn); @called = fn.call end
     end
     
     @object = klass.new
@@ -81,6 +83,46 @@ describe BootyCall::Hook do
     
     it "allows regex declarations of callback behavior for undefined methods" do
       klass.class_eval { after(/ping|pong/, :regexd!) }
+      
+      klass.class_eval { def ping; :ping end }
+      klass.class_eval { def pong; :pong end }
+      
+      mock(object).regexd!(:ping)
+      mock(object).regexd!(:pong)
+      object.ping
+      object.pong
+    end
+  end
+  
+  describe "#around" do
+    it "allows callbacks to be defined before methods are" do
+      object.should_not be_called
+      object.fizz.should == :fizz
+      object.should be_called
+    end
+  
+    it "allows callbacks to be defined after methods are" do
+      klass.around(:buzz) { |fn| call!; fn.call }
+  
+      object.should_not be_called
+      object.buzz
+      object.should be_called
+    end
+    
+    it "allows regex declarations of callback behavior for defined methods" do
+      klass.class_eval do
+        around(/foo|bar/) { |f| regexd! f.call }
+      end
+      mock(object).regexd!(:foo)
+      mock(object).regexd!(:bar)
+      object.foo
+      object.bar
+    end
+    
+    it "allows regex declarations of callback behavior for undefined methods" do
+      klass.class_eval do
+        around(/ping|pong/) { |f| regexd! f.call }
+      end
       
       klass.class_eval { def ping; :ping end }
       klass.class_eval { def pong; :pong end }

@@ -22,6 +22,10 @@ module BootyCall
         callback(:after, method_id, *args, &block)
       end
       
+      def around(method_id, *args, &block)
+        callback(:around, method_id, *args, &block)
+      end
+      
       def observe(method_id, options={}, &block)
         observer = options[:meta] ? @meta_introspector : @introspector
         observer.observe(method_id, options, &block)
