@@ -11,7 +11,7 @@ module BootyCall
   
     def match(sym)
       return unless case method_id
-      when Symbol then valid?
+      when Symbol then valid? and method_id === sym
       when Regexp then valid? and method_id.try(:match, sym.to_s)
       else ; nil
       end

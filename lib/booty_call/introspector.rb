@@ -25,7 +25,7 @@ module BootyCall
     end
     
     def has_method?(method_id)
-      klass.instance_method(method_id) and true rescue false
+      klass.instance_method(method_id) rescue false
     end
     
     def observing?(method_id)

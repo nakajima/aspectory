@@ -31,11 +31,10 @@ module BootyCall
     end
     
     def add_callback(position, method_id, *symbols, &block)
-      klass.callback_cache[position][method_id].tap do |slot|
-        slot.push(block) if block_given?
-        slot.concat(symbols)
-        slot.tap.compact!.uniq!
-      end
+      klass.callback_cache[position][method_id] << block if block_given?
+      klass.callback_cache[position][method_id] += symbols
+      klass.callback_cache[position][method_id].compact!
+      klass.callback_cache[position][method_id].uniq!
       
       klass.pristine_cache[method_id] ||= begin
         klass.instance_method(method_id).tap do

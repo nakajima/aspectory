@@ -4,25 +4,41 @@ h2. Callbacks for Ruby.
 
 h3. How it works
 
-Basically, you get two methods: @before@ and @after@. Each of these
-takes a method name, then a splat args of symbols and/or a block. The
+Basically, you get three methods: @before@,@after@ and @around@. Each of
+these takes a method name, then a splat args of symbols and/or a block. The
 symbols/block will be called before/after the method you specified.
+
+The @around@ callback gets passed a proc, in the form of an unnamed block
+for handlers that are methods and a block argument for handlers that are
+blocks. You must @yield@ or @call@ that block in order for the original
+method to be called.
 
 h3. Simple Example
 
 <pre>
+require 'rubygems'
+require 'booty-call'
+require 'spec'
+
 class Something
   include BootyCall::Hook
 
   attr_reader :results
 
+  around :foo, :round
   before :foo, :setup
   after  :foo, :teardown
-  
+
   before :bar do
     @results << :before
   end
-  
+
+  around :bar do |fn|
+    @results << :start
+    fn.call
+    @results << :finish
+  end
+
   after :bar do
     @results << :after
   end
@@ -34,9 +50,28 @@ class Something
   def foo; @results << :foo; :foo end
   def bar; @results << :bar; :bar end
 
-  def setup; @results << :setup end
-  def teardown; @results << :teardown end
+  def round
+    @results << :start
+    yield
+    @results << :finish
+  end
+
+  def setup
+    @results << :setup
+  end
+
+  def teardown
+    @results << :teardown
+  end
 end
+
+something = Something.new
+p something.foo # => :foo
+p something.results # => [:setup, :start, :foo, :finish, :teardown]
+
+something = Something.new
+p something.bar # => :bar
+p something.results # => [:before, :start, :bar, :finish, :after]
 </pre>
 
 <pre>

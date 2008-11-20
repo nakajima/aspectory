@@ -47,12 +47,18 @@ describe BootyCall::Hook do
     end
     
     it "allows regex declarations of callback behavior for undefined methods" do
-      klass.class_eval { before(/ping|pong/, :regexd!) }
+      klass.before(/ping/) { pinged! } #, :pinged!)
+      klass.before(/pong/) { ponged! }
       
-      klass.class_eval { def ping; :ping end }
-      klass.class_eval { def pong; :pong end }
+      klass.class_eval do
+        def ping; :ping end
+        def pong; :pong end
+        def pung; :pung end
+      end
       
-      mock(object).regexd!.twice
+      mock(object).pinged!
+      mock(object).ponged!
+      mock(object).call!.never
       object.ping
       object.pong
     end
@@ -89,6 +95,23 @@ describe BootyCall::Hook do
       
       mock(object).regexd!(:ping)
       mock(object).regexd!(:pong)
+      object.ping
+      object.pong
+    end
+    
+    it "allows regex declarations of callback behavior for undefined methods" do
+      klass.after(/ping/) { pinged! } #, :pinged!)
+      klass.after(/pong/) { ponged! }
+      
+      klass.class_eval do
+        def ping; :ping end
+        def pong; :pong end
+        def pung; :pung end
+      end
+      
+      mock(object).pinged!
+      mock(object).ponged!
+      mock(object).call!.never
       object.ping
       object.pong
     end
@@ -129,6 +152,23 @@ describe BootyCall::Hook do
       
       mock(object).regexd!(:ping)
       mock(object).regexd!(:pong)
+      object.ping
+      object.pong
+    end
+    
+    it "allows regex declarations of callback behavior for undefined methods" do
+      klass.around(/ping/) { |fn| fn.call pinged! } #, :pinged!)
+      klass.around(/pong/) { |fn| fn.call ponged! }
+      
+      klass.class_eval do
+        def ping; :ping end
+        def pong; :pong end
+        def pung; :pung end
+      end
+      
+      mock(object).pinged!
+      mock(object).ponged!
+      mock(object).call!.never
       object.ping
       object.pong
     end
