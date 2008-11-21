@@ -189,6 +189,7 @@ h3. Requirements
 
 h4. TODO
 
+* Maybe don't worry about instance_eval'ing or instance_exec'ing callback blocks.
 * Figure out a way to get it working with metaclasses
 * Spec suite could definitely be more readable
 
