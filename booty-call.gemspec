@@ -15,7 +15,10 @@ Gem::Specification.new do |s|
     "lib/booty_call/hook.rb",
     "lib/booty_call/callbacker.rb",
     "lib/booty_call/introspector.rb",
-    "lib/booty_call/observed_method.rb"
+    "lib/booty_call/observed_method.rb",
+    "lib/core_ext",
+    "lib/core_ext/array.rb",
+    "lib/core_ext/method.rb"
   ]
   s.homepage = %q{http://github.com/nakajima/booty-call}
   s.require_paths = ["lib"]

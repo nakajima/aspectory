@@ -1,5 +1,5 @@
 class Method
-  def same_arity?(collection)
+  def arity_match?(collection)
     arity == -1 or arity == collection.length
   end
 end

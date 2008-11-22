@@ -84,7 +84,7 @@ module BootyCall
             if callback.is_a?(Proc)
               instance_exec(*results.unshift?(block), &callback)
             else
-              method(callback).same_arity?(results) ?
+              method(callback).arity_match?(results) ?
                 send(callback, *results, &block) :
                 send(callback, &block)
             end
