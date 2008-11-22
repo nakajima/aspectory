@@ -195,6 +195,7 @@ h4. TODO
 
 h4. Alternatives:
 
+* http://github.com/sam/extlib/tree/master/lib/extlib/hook.rb
 * "AspectR":http://aspectr.sourceforge.net
 * "Aquarium":http://aquarium.rubyforge.org/
 
