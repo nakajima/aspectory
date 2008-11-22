@@ -71,33 +71,29 @@ module BootyCall
       def callback_cache
         @callback_cache || superclass.callback_cache
       end
-      
-      def run_callbacks_for(target, position, method_id, *results, &block)
-        callbacks = callback_cache[position][method_id.to_sym]
-        
-        handle = proc do |fn|
-          if fn.is_a?(Proc)
-            block ? proc { instance_exec(block, &fn) } : fn
-          else
-            target.method(fn).arity.abs == results.length ?
-              proc { send(fn, *results, &block) } :
-              proc { send(fn, &block) }
-          end
-        end
-        
-        cancel = proc do
-          block ? target.instance_eval(&block) : true
-        end
-        
-        callbacks.empty? ? cancel[block] : callbacks.map { |fn|
-          target.instance_exec(*results, &handle[fn])
-        }.all?
-      end
     end
     
     module InstanceMethods
+      def callbacks_for(position, method_id, *results, &block)
+        callbacks = self.class.callback_cache[position][method_id.to_sym]
+        
+        if callbacks.empty?
+          block ? instance_eval(&block) : true
+        else
+          callbacks.map { |callback|
+            if callback.is_a?(Proc)
+              instance_exec(*results.unshift?(block), &callback)
+            else
+              method(callback).same_arity?(results) ?
+                send(callback, *results, &block) :
+                send(callback, &block)
+            end
+          }.all?
+        end
+      end
+      
       def run_callbacks(position, method_id, *args, &block)
-        self.class.run_callbacks_for(self, position, method_id, *args, &block).tap do |result|
+        callbacks_for(position, method_id, *args, &block).tap do |result|
           # Halt method propagation if before callbacks return false
           throw(method_id, false) if position.eql?(:before) and result.eql?(false)
         end
