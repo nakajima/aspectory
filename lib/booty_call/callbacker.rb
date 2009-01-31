@@ -82,7 +82,7 @@ module BootyCall
         else
           callbacks.map { |callback|
             if callback.is_a?(Proc)
-              instance_exec(*results.unshift?(block), &callback)
+              instance_exec(*results.enqueue(block), &callback)
             else
               method(callback).arity_match?(results) ?
                 send(callback, *results, &block) :

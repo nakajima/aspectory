@@ -1,5 +1,5 @@
 class Array
-  def unshift?(item)
+  def enqueue(item)
     tap do
       unshift(item) if item
     end
