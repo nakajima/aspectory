@@ -1,4 +1,4 @@
-module BootyCall
+module Aspectory
   class Callbacker
     attr_reader :klass
     

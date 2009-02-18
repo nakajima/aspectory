@@ -1,6 +1,6 @@
 require 'spec/spec_helper'
 
-describe BootyCall::Callbacker do
+describe Aspectory::Callbacker do
   attr_reader :klass, :subklass, :callbacker, :object
   
   before(:each) do
@@ -48,7 +48,7 @@ describe BootyCall::Callbacker do
       end
     end
     
-    @callbacker = BootyCall::Callbacker.new(klass)
+    @callbacker = Aspectory::Callbacker.new(klass)
     @object = klass.new
   end
   

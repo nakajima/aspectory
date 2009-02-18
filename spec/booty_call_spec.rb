@@ -1,7 +1,7 @@
 require 'spec/spec_helper'
 
-describe BootyCall do
+describe Aspectory do
   it "exists, so this spec doesn't blow up" do
-    BootyCall
+    Aspectory
   end
 end

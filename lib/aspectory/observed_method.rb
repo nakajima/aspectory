@@ -1,4 +1,4 @@
-module BootyCall
+module Aspectory
   class ObservedMethod
     attr_reader :method_id
     

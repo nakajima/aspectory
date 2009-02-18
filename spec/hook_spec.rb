@@ -1,11 +1,11 @@
 require 'spec/spec_helper'
 
-describe BootyCall::Hook do
+describe Aspectory::Hook do
   attr_reader :klass, :object
   
   before(:each) do
     @klass = Class.new do
-      include BootyCall
+      include Aspectory
       
       after :bar, :call!
       before :foo, :call!

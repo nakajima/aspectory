@@ -1,4 +1,4 @@
-module BootyCall
+module Aspectory
   class Introspector
     attr_reader :klass, :options
     

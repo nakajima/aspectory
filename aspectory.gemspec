@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{booty-call}
+  s.name = %q{aspectory}
   s.version = "0.0.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
@@ -9,18 +9,17 @@ Gem::Specification.new do |s|
   s.date = %q{2008-11-12}
   s.email = %q{patnakajima@gmail.com}
   s.files = [
-    "lib/booty_call",
-    "lib/booty-call.rb",
-    "lib/booty_call.rb",
-    "lib/booty_call/hook.rb",
-    "lib/booty_call/callbacker.rb",
-    "lib/booty_call/introspector.rb",
-    "lib/booty_call/observed_method.rb",
+    "lib/aspectory",
+    "lib/aspectory.rb",
+    "lib/aspectory/hook.rb",
+    "lib/aspectory/callbacker.rb",
+    "lib/aspectory/introspector.rb",
+    "lib/aspectory/observed_method.rb",
     "lib/core_ext",
     "lib/core_ext/array.rb",
     "lib/core_ext/method.rb"
   ]
-  s.homepage = %q{http://github.com/nakajima/booty-call}
+  s.homepage = %q{http://github.com/nakajima/aspectory}
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.0}
   s.summary = %q{Callbacks for your Ruby}

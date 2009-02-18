@@ -1,4 +1,4 @@
-module BootyCall
+module Aspectory
   def self.included(klass)
     klass.send(:include, Hook)
   end
@@ -7,9 +7,9 @@ module BootyCall
     def self.included(klass)
       klass.class_eval do
         extend(ClassMethods)
-        @callbacker = BootyCall::Callbacker.new(self)
-        @introspector = BootyCall::Introspector.new(self)
-        @meta_introspector = BootyCall::Introspector.new(self, :meta => true)
+        @callbacker = Aspectory::Callbacker.new(self)
+        @introspector = Aspectory::Introspector.new(self)
+        @meta_introspector = Aspectory::Introspector.new(self, :meta => true)
       end
     end
     

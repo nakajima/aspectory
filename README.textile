@@ -1,10 +1,10 @@
-h1. Booty Call
+h1. Aspectory
 
 h2. Callbacks for Ruby.
 
 h3. How it works
 
-Basically, you get three methods: @before@,@after@ and @around@. Each of
+Basically, you get three methods: @before@, @after@ and @around@. Each of
 these takes a method name, then a splat args of symbols and/or a block. The
 symbols/block will be called before/after the method you specified.
 
@@ -17,11 +17,11 @@ h3. Simple Example
 
 <pre>
 require 'rubygems'
-require 'booty-call'
+require 'aspectory'
 require 'spec'
 
 class Something
-  include BootyCall::Hook
+  include Aspectory::Hook
 
   attr_reader :results
 
@@ -155,7 +155,7 @@ To observe class method definitions, you must pass the @:meta@ option.
 
 <pre>
 class Framework
-  include BootyCall
+  include Aspectory
   
   # Using a symbol
   observe :admin? do

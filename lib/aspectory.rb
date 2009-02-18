@@ -1,4 +1,4 @@
-$LOAD_PATH << File.dirname(__FILE__) + '/booty_call'
+$LOAD_PATH << File.dirname(__FILE__) + '/aspectory'
 $LOAD_PATH << File.dirname(__FILE__) + '/core_ext'
 
 module BootyCall
