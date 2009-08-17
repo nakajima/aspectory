@@ -82,7 +82,8 @@ module Aspectory
         else
           callbacks.map { |callback|
             if callback.is_a?(Proc)
-              instance_exec(*results.enqueue(block), &callback)
+              results.unshift(block) if block
+              instance_exec(*results, &callback)
             else
               method(callback).arity_match?(results) ?
                 send(callback, *results, &block) :
